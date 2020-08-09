@@ -10824,7 +10824,7 @@ var $author$project$Main$update = F2(
 							}),
 						maybeIndex,
 						maybeElement));
-			case 'DragEnter':
+			default:
 				var toElement = msg.a;
 				var maybeToIndex = A2(
 					$author$project$Main$find,
@@ -10847,19 +10847,15 @@ var $author$project$Main$update = F2(
 							}),
 						maybeFromIndex,
 						maybeToIndex));
-			default:
-				return model;
 		}
 	});
 var $author$project$Main$DragEnd = {$: 'DragEnd'};
 var $author$project$Main$DragEnter = function (a) {
 	return {$: 'DragEnter', a: a};
 };
-var $author$project$Main$DragOver = {$: 'DragOver'};
 var $author$project$Main$DragStart = function (a) {
 	return {$: 'DragStart', a: a};
 };
-var $author$project$Main$Drop = {$: 'Drop'};
 var $elm$html$Html$Attributes$draggable = _VirtualDom_attribute('draggable');
 var $author$project$Main$onDragEnd = function (msg) {
 	return A2(
@@ -10873,35 +10869,11 @@ var $author$project$Main$onDragEnter = function (msg) {
 		'dragenter',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
-	return {$: 'MayPreventDefault', a: a};
-};
-var $elm$html$Html$Events$preventDefaultOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
-	});
-var $author$project$Main$onDragOver = function (msg) {
-	return A2(
-		$elm$html$Html$Events$preventDefaultOn,
-		'dragover',
-		$elm$json$Json$Decode$succeed(
-			_Utils_Tuple2(msg, true)));
-};
 var $author$project$Main$onDragStart = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
 		'dragstart',
 		$elm$json$Json$Decode$succeed(msg));
-};
-var $author$project$Main$onDrop = function (msg) {
-	return A2(
-		$elm$html$Html$Events$preventDefaultOn,
-		'drop',
-		$elm$json$Json$Decode$succeed(
-			_Utils_Tuple2(msg, true)));
 };
 var $author$project$Main$elementView = function (elem) {
 	return A2(
@@ -10920,10 +10892,8 @@ var $author$project$Main$elementView = function (elem) {
 				$author$project$Main$onDragStart(
 				$author$project$Main$DragStart(elem)),
 				$author$project$Main$onDragEnd($author$project$Main$DragEnd),
-				$author$project$Main$onDragOver($author$project$Main$DragOver),
 				$author$project$Main$onDragEnter(
-				$author$project$Main$DragEnter(elem)),
-				$author$project$Main$onDrop($author$project$Main$Drop)
+				$author$project$Main$DragEnter(elem))
 			]),
 		_List_fromArray(
 			[
@@ -10965,4 +10935,4 @@ var $author$project$Main$view = function (model) {
 var $author$project$Main$main = $elm$browser$Browser$sandbox(
 	{init: $author$project$Main$initialModel, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Main.Element":{"args":[],"type":"{ dragged : Basics.Bool, text : String.String }"}},"unions":{"Main.Msg":{"args":[],"tags":{"DragStart":["Main.Element"],"DragEnd":[],"DragOver":[],"Drop":[],"DragEnter":["Main.Element"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Main.Element":{"args":[],"type":"{ dragged : Basics.Bool, text : String.String }"}},"unions":{"Main.Msg":{"args":[],"tags":{"DragStart":["Main.Element"],"DragEnd":[],"DragEnter":["Main.Element"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));

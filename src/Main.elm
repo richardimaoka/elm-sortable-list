@@ -43,8 +43,6 @@ initialModel =
 type Msg
     = DragStart Element
     | DragEnd
-    | DragOver
-    | Drop
     | DragEnter Element
 
 
@@ -90,9 +88,6 @@ update msg model =
                     maybeFromIndex
                     maybeToIndex
                 )
-
-        _ ->
-            model
 
 
 find : (a -> Bool) -> Array a -> Maybe Int
@@ -200,9 +195,7 @@ elementView elem =
         , draggable "true"
         , onDragStart <| DragStart elem
         , onDragEnd DragEnd
-        , onDragOver DragOver
         , onDragEnter <| DragEnter elem
-        , onDrop Drop
         ]
         [ text elem.text ]
 
@@ -217,19 +210,9 @@ onDragEnd msg =
     on "dragend" <| Decode.succeed msg
 
 
-onDragOver : Msg -> Attribute Msg
-onDragOver msg =
-    preventDefaultOn "dragover" <| Decode.succeed ( msg, True )
-
-
 onDragEnter : Msg -> Attribute Msg
 onDragEnter msg =
     on "dragenter" <| Decode.succeed msg
-
-
-onDrop : Msg -> Attribute Msg
-onDrop msg =
-    preventDefaultOn "drop" <| Decode.succeed ( msg, True )
 
 
 main : Program () Model Msg
