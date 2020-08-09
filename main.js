@@ -5019,7 +5019,6 @@ var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
 var $elm$core$Basics$False = {$: 'False'};
-var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
 		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
@@ -5186,24 +5185,21 @@ var $elm$core$Array$fromList = function (list) {
 		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
 	}
 };
-var $author$project$Main$initialModel = {
-	draggedIndex: $elm$core$Maybe$Nothing,
-	elements: $elm$core$Array$fromList(
-		_List_fromArray(
-			[
-				{dragged: false, text: '0'},
-				{dragged: false, text: '1'},
-				{dragged: false, text: '2'},
-				{dragged: false, text: '3'},
-				{dragged: false, text: '4'},
-				{dragged: false, text: '5'},
-				{dragged: false, text: '6'},
-				{dragged: false, text: '7'},
-				{dragged: false, text: '8'},
-				{dragged: false, text: '9'},
-				{dragged: false, text: '10'}
-			]))
-};
+var $author$project$Main$initialModel = $elm$core$Array$fromList(
+	_List_fromArray(
+		[
+			{dragged: false, text: '0'},
+			{dragged: false, text: '1'},
+			{dragged: false, text: '2'},
+			{dragged: false, text: '3'},
+			{dragged: false, text: '4'},
+			{dragged: false, text: '5'},
+			{dragged: false, text: '6'},
+			{dragged: false, text: '7'},
+			{dragged: false, text: '8'},
+			{dragged: false, text: '9'},
+			{dragged: false, text: '10'}
+		]));
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -5228,6 +5224,7 @@ var $elm$json$Json$Decode$OneOf = function (a) {
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -10780,28 +10777,30 @@ var $author$project$Main$update = F2(
 					function (elem) {
 						return _Utils_eq(elem.text, draggedElement.text);
 					},
-					model.elements);
+					model);
 				if (_v1.$ === 'Nothing') {
 					return model;
 				} else {
 					var index = _v1.a;
-					return {
-						draggedIndex: $elm$core$Maybe$Just(index),
-						elements: A3(
-							$elm$core$Array$set,
-							index,
-							_Utils_update(
-								draggedElement,
-								{dragged: true}),
-							model.elements)
-					};
+					return A3(
+						$elm$core$Array$set,
+						index,
+						_Utils_update(
+							draggedElement,
+							{dragged: true}),
+						model);
 				}
 			case 'DragEnd':
-				var maybeIndex = model.draggedIndex;
+				var maybeIndex = A2(
+					$author$project$Main$find,
+					function (elem) {
+						return elem.dragged;
+					},
+					model);
 				var maybeElement = A2(
 					$elm$core$Maybe$andThen,
 					function (index) {
-						return A2($elm$core$Array$get, index, model.elements);
+						return A2($elm$core$Array$get, index, model);
 					},
 					maybeIndex);
 				return A2(
@@ -10811,28 +10810,30 @@ var $author$project$Main$update = F2(
 						$elm$core$Maybe$map2,
 						F2(
 							function (index, element) {
-								return {
-									draggedIndex: $elm$core$Maybe$Nothing,
-									elements: A3(
-										$elm$core$Array$set,
-										index,
-										_Utils_update(
-											element,
-											{dragged: false}),
-										model.elements)
-								};
+								return A3(
+									$elm$core$Array$set,
+									index,
+									_Utils_update(
+										element,
+										{dragged: false}),
+									model);
 							}),
 						maybeIndex,
 						maybeElement));
-			default:
+			case 'DragEnter':
 				var toElement = msg.a;
 				var maybeToIndex = A2(
 					$author$project$Main$find,
 					function (elem) {
 						return _Utils_eq(elem.text, toElement.text);
 					},
-					model.elements);
-				var maybeFromIndex = model.draggedIndex;
+					model);
+				var maybeFromIndex = A2(
+					$author$project$Main$find,
+					function (elem) {
+						return elem.dragged;
+					},
+					model);
 				return A2(
 					$elm$core$Maybe$withDefault,
 					model,
@@ -10840,22 +10841,23 @@ var $author$project$Main$update = F2(
 						$elm$core$Maybe$map2,
 						F2(
 							function (fromIndex, toIndex) {
-								return {
-									draggedIndex: $elm$core$Maybe$Just(toIndex),
-									elements: A3($author$project$Main$sort, fromIndex, toIndex, model.elements)
-								};
+								return A3($author$project$Main$sort, fromIndex, toIndex, model);
 							}),
 						maybeFromIndex,
 						maybeToIndex));
+			default:
+				return model;
 		}
 	});
 var $author$project$Main$DragEnd = {$: 'DragEnd'};
 var $author$project$Main$DragEnter = function (a) {
 	return {$: 'DragEnter', a: a};
 };
+var $author$project$Main$DragOver = {$: 'DragOver'};
 var $author$project$Main$DragStart = function (a) {
 	return {$: 'DragStart', a: a};
 };
+var $author$project$Main$Drop = {$: 'Drop'};
 var $elm$html$Html$Attributes$draggable = _VirtualDom_attribute('draggable');
 var $author$project$Main$onDragEnd = function (msg) {
 	return A2(
@@ -10869,11 +10871,35 @@ var $author$project$Main$onDragEnter = function (msg) {
 		'dragenter',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
+	return {$: 'MayPreventDefault', a: a};
+};
+var $elm$html$Html$Events$preventDefaultOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
+	});
+var $author$project$Main$onDragOver = function (msg) {
+	return A2(
+		$elm$html$Html$Events$preventDefaultOn,
+		'dragover',
+		$elm$json$Json$Decode$succeed(
+			_Utils_Tuple2(msg, true)));
+};
 var $author$project$Main$onDragStart = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
 		'dragstart',
 		$elm$json$Json$Decode$succeed(msg));
+};
+var $author$project$Main$onDrop = function (msg) {
+	return A2(
+		$elm$html$Html$Events$preventDefaultOn,
+		'drop',
+		$elm$json$Json$Decode$succeed(
+			_Utils_Tuple2(msg, true)));
 };
 var $author$project$Main$elementView = function (elem) {
 	return A2(
@@ -10892,8 +10918,10 @@ var $author$project$Main$elementView = function (elem) {
 				$author$project$Main$onDragStart(
 				$author$project$Main$DragStart(elem)),
 				$author$project$Main$onDragEnd($author$project$Main$DragEnd),
+				$author$project$Main$onDragOver($author$project$Main$DragOver),
 				$author$project$Main$onDragEnter(
-				$author$project$Main$DragEnter(elem))
+				$author$project$Main$DragEnter(elem)),
+				$author$project$Main$onDrop($author$project$Main$Drop)
 			]),
 		_List_fromArray(
 			[
@@ -10930,9 +10958,9 @@ var $author$project$Main$view = function (model) {
 		$elm$html$Html$div,
 		_List_Nil,
 		$elm$core$Array$toList(
-			A2($elm$core$Array$map, $author$project$Main$elementView, model.elements)));
+			A2($elm$core$Array$map, $author$project$Main$elementView, model)));
 };
 var $author$project$Main$main = $elm$browser$Browser$sandbox(
 	{init: $author$project$Main$initialModel, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Main.Element":{"args":[],"type":"{ dragged : Basics.Bool, text : String.String }"}},"unions":{"Main.Msg":{"args":[],"tags":{"DragStart":["Main.Element"],"DragEnd":[],"DragEnter":["Main.Element"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Main.Element":{"args":[],"type":"{ dragged : Basics.Bool, text : String.String }"}},"unions":{"Main.Msg":{"args":[],"tags":{"DragStart":["Main.Element"],"DragEnd":[],"DragOver":[],"Drop":[],"DragEnter":["Main.Element"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));
