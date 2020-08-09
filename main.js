@@ -5018,6 +5018,7 @@ var $elm$core$Set$toList = function (_v0) {
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
+var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
@@ -5189,7 +5190,19 @@ var $author$project$Main$initialModel = {
 	draggedIndex: $elm$core$Maybe$Nothing,
 	elements: $elm$core$Array$fromList(
 		_List_fromArray(
-			['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']))
+			[
+				{dragged: false, text: '0'},
+				{dragged: false, text: '1'},
+				{dragged: false, text: '2'},
+				{dragged: false, text: '3'},
+				{dragged: false, text: '4'},
+				{dragged: false, text: '5'},
+				{dragged: false, text: '6'},
+				{dragged: false, text: '7'},
+				{dragged: false, text: '8'},
+				{dragged: false, text: '9'},
+				{dragged: false, text: '10'}
+			]))
 };
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
@@ -5212,7 +5225,6 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
@@ -10599,6 +10611,48 @@ var $elm$core$Maybe$map2 = F3(
 			}
 		}
 	});
+var $elm$core$Array$setHelp = F4(
+	function (shift, index, value, tree) {
+		var pos = $elm$core$Array$bitMask & (index >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+		if (_v0.$ === 'SubTree') {
+			var subTree = _v0.a;
+			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$SubTree(newSub),
+				tree);
+		} else {
+			var values = _v0.a;
+			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$Leaf(newLeaf),
+				tree);
+		}
+	});
+var $elm$core$Array$set = F3(
+	function (index, value, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			tree,
+			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A4($elm$core$Array$setHelp, startShift, index, value, tree),
+			tail));
+	});
 var $author$project$Main$DOWN = {$: 'DOWN'};
 var $author$project$Main$UP = {$: 'UP'};
 var $elm$core$Array$appendHelpTree = F2(
@@ -10720,23 +10774,62 @@ var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'DragStart':
-				var element = msg.a;
-				return _Utils_update(
-					model,
-					{
-						draggedIndex: A2(
-							$author$project$Main$find,
-							function (elem) {
-								return _Utils_eq(elem, element);
-							},
+				var draggedElement = msg.a;
+				var _v1 = A2(
+					$author$project$Main$find,
+					function (elem) {
+						return _Utils_eq(elem.text, draggedElement.text);
+					},
+					model.elements);
+				if (_v1.$ === 'Nothing') {
+					return model;
+				} else {
+					var index = _v1.a;
+					return {
+						draggedIndex: $elm$core$Maybe$Just(index),
+						elements: A3(
+							$elm$core$Array$set,
+							index,
+							_Utils_update(
+								draggedElement,
+								{dragged: true}),
 							model.elements)
-					});
+					};
+				}
+			case 'DragEnd':
+				var maybeIndex = model.draggedIndex;
+				var maybeElement = A2(
+					$elm$core$Maybe$andThen,
+					function (index) {
+						return A2($elm$core$Array$get, index, model.elements);
+					},
+					maybeIndex);
+				return A2(
+					$elm$core$Maybe$withDefault,
+					model,
+					A3(
+						$elm$core$Maybe$map2,
+						F2(
+							function (index, element) {
+								return {
+									draggedIndex: $elm$core$Maybe$Nothing,
+									elements: A3(
+										$elm$core$Array$set,
+										index,
+										_Utils_update(
+											element,
+											{dragged: false}),
+										model.elements)
+								};
+							}),
+						maybeIndex,
+						maybeElement));
 			case 'DragEnter':
 				var toElement = msg.a;
 				var maybeToIndex = A2(
 					$author$project$Main$find,
 					function (elem) {
-						return _Utils_eq(elem, toElement);
+						return _Utils_eq(elem.text, toElement.text);
 					},
 					model.elements);
 				var maybeFromIndex = model.draggedIndex;
@@ -10758,9 +10851,7 @@ var $author$project$Main$update = F2(
 				return model;
 		}
 	});
-var $author$project$Main$DragEnd = function (a) {
-	return {$: 'DragEnd', a: a};
-};
+var $author$project$Main$DragEnd = {$: 'DragEnd'};
 var $author$project$Main$DragEnter = function (a) {
 	return {$: 'DragEnter', a: a};
 };
@@ -10817,6 +10908,10 @@ var $author$project$Main$elementView = function (elem) {
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
+				A2(
+				$elm$html$Html$Attributes$style,
+				'opacity',
+				elem.dragged ? '0.5' : '1.0'),
 				A2($elm$html$Html$Attributes$style, 'background-color', 'coral'),
 				A2($elm$html$Html$Attributes$style, 'margin', '15px'),
 				A2($elm$html$Html$Attributes$style, 'max-width', '100px'),
@@ -10824,8 +10919,7 @@ var $author$project$Main$elementView = function (elem) {
 				$elm$html$Html$Attributes$draggable('true'),
 				$author$project$Main$onDragStart(
 				$author$project$Main$DragStart(elem)),
-				$author$project$Main$onDragEnd(
-				$author$project$Main$DragEnd(elem)),
+				$author$project$Main$onDragEnd($author$project$Main$DragEnd),
 				$author$project$Main$onDragOver($author$project$Main$DragOver),
 				$author$project$Main$onDragEnter(
 				$author$project$Main$DragEnter(elem)),
@@ -10833,7 +10927,7 @@ var $author$project$Main$elementView = function (elem) {
 			]),
 		_List_fromArray(
 			[
-				$elm$html$Html$text(elem)
+				$elm$html$Html$text(elem.text)
 			]));
 };
 var $elm$core$Elm$JsArray$map = _JsArray_map;
@@ -10871,4 +10965,4 @@ var $author$project$Main$view = function (model) {
 var $author$project$Main$main = $elm$browser$Browser$sandbox(
 	{init: $author$project$Main$initialModel, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Main.Element":{"args":[],"type":"String.String"}},"unions":{"Main.Msg":{"args":[],"tags":{"DragStart":["Main.Element"],"DragEnd":["Main.Element"],"DragOver":[],"Drop":[],"DragEnter":["Main.Element"]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Main.Element":{"args":[],"type":"{ dragged : Basics.Bool, text : String.String }"}},"unions":{"Main.Msg":{"args":[],"tags":{"DragStart":["Main.Element"],"DragEnd":[],"DragOver":[],"Drop":[],"DragEnter":["Main.Element"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});}(this));

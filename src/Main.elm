@@ -9,7 +9,9 @@ import Json.Decode as Decode
 
 
 type alias Element =
-    String
+    { dragged : Bool
+    , text : String
+    }
 
 
 type alias Model =
@@ -23,24 +25,24 @@ initialModel =
     { draggedIndex = Nothing
     , elements =
         Array.fromList
-            [ "0"
-            , "1"
-            , "2"
-            , "3"
-            , "4"
-            , "5"
-            , "6"
-            , "7"
-            , "8"
-            , "9"
-            , "10"
+            [ { dragged = False, text = "0" }
+            , { dragged = False, text = "1" }
+            , { dragged = False, text = "2" }
+            , { dragged = False, text = "3" }
+            , { dragged = False, text = "4" }
+            , { dragged = False, text = "5" }
+            , { dragged = False, text = "6" }
+            , { dragged = False, text = "7" }
+            , { dragged = False, text = "8" }
+            , { dragged = False, text = "9" }
+            , { dragged = False, text = "10" }
             ]
     }
 
 
 type Msg
     = DragStart Element
-    | DragEnd Element
+    | DragEnd
     | DragOver
     | Drop
     | DragEnter Element
@@ -49,10 +51,30 @@ type Msg
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        DragStart element ->
-            { model
-                | draggedIndex = find (\elem -> elem == element) model.elements
-            }
+        DragStart draggedElement ->
+            case find (\elem -> elem.text == draggedElement.text) model.elements of
+                Nothing ->
+                    model
+
+                Just index ->
+                    { draggedIndex = Just index
+                    , elements = Array.set index { draggedElement | dragged = True } model.elements
+                    }
+
+        DragEnd ->
+            let
+                maybeIndex =
+                    model.draggedIndex
+
+                maybeElement =
+                    maybeIndex |> Maybe.andThen (\index -> Array.get index model.elements)
+            in
+            Maybe.withDefault model
+                (Maybe.map2
+                    (\index element -> { draggedIndex = Nothing, elements = Array.set index { element | dragged = False } model.elements })
+                    maybeIndex
+                    maybeElement
+                )
 
         DragEnter toElement ->
             let
@@ -60,7 +82,7 @@ update msg model =
                     model.draggedIndex
 
                 maybeToIndex =
-                    find (\elem -> elem == toElement) model.elements
+                    find (\elem -> elem.text == toElement.text) model.elements
             in
             Maybe.withDefault model
                 (Maybe.map2
@@ -164,18 +186,25 @@ view model =
 elementView : Element -> Html Msg
 elementView elem =
     div
-        [ style "background-color" "coral"
+        [ style "opacity"
+            (if elem.dragged then
+                "0.5"
+
+             else
+                "1.0"
+            )
+        , style "background-color" "coral"
         , style "margin" "15px"
         , style "max-width" "100px"
         , style "min-height" "30px"
         , draggable "true"
         , onDragStart <| DragStart elem
-        , onDragEnd <| DragEnd elem
+        , onDragEnd DragEnd
         , onDragOver DragOver
         , onDragEnter <| DragEnter elem
         , onDrop Drop
         ]
-        [ text elem ]
+        [ text elem.text ]
 
 
 onDragStart : Msg -> Attribute Msg
