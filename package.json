@@ -1,19 +1,19 @@
 {
-  "name": "elmrdra",
+  "name": "elm-sortable-list",
   "version": "1.0.0",
   "description": "",
-  "main": "hello.js",
+  "main": "main.js",
   "scripts": {
     "serve": "elm-live src/Main.elm --open --start-page=index.html --port 30248 -- --output=main.js --debug"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/richardimaoka/elmrdra.git"
+    "url": "git+https://github.com/richardimaoka/elm-sortable-list.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/richardimaoka/elmrdra/issues"
+    "url": "https://github.com/richardimaoka/elm-sortable-list/issues"
   },
-  "homepage": "https://github.com/richardimaoka/elmrdra#readme"
+  "homepage": "https://github.com/richardimaoka/elm-sortable-list"
 }
